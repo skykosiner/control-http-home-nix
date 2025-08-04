@@ -3,7 +3,7 @@
 with lib;
 
 let
-  cfg = config.services.down-alert;
+  cfg = config.services.control-http-home;
 
   daemonPkg = pkgs.callPackage ./default.nix { };
 
@@ -40,7 +40,7 @@ in {
   config = mkIf cfg.enable {
     environment.etc."control-http-home/config.json".text = configJson;
 
-    systemd.services.down-alert = {
+    systemd.services.control-http-home = {
       description = "Control HTTP Home Daemon";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
