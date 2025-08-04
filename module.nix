@@ -7,7 +7,7 @@ let
 
   daemonPkg = pkgs.callPackage ./default.nix { };
 
-  configJson = builtins.toJSON { services = cfg.services; };
+  configJson = builtins.toJSON { commands = cfg.commands; };
 in {
   options.services.control-http-home = {
     enable = mkEnableOption "control http home daemon";
