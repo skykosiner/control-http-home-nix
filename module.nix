@@ -38,6 +38,21 @@ in {
   };
 
   config = mkIf cfg.enable {
+    users.groups.control-http-home = { };
+
+    users.users.control-http-home = {
+      isSystemUser = true;
+      description = "Control HTTP Home daemon user";
+      home = "/var/lib/control-http-home";
+      shell = pkgs.bash;
+      group = "control-http-home";
+      extraGroups = [ "wheel" ]; # Allows sudo access if wheel is in sudoers
+    };
+
+    security.sudo.extraConfig = ''
+      control-http-home ALL=(ALL) NOPASSWD: /bin/systemctl suspend
+    '';
+
     environment.etc."control-http-home/config.json".text = configJson;
 
     systemd.services.control-http-home = {
@@ -49,7 +64,8 @@ in {
         ExecStart =
           "${daemonPkg}/bin/control-http-home --config=/etc/control-http-home/config.json";
         Restart = "always";
-        User = "sky";
+        User = "control-http-home";
+        DynamicUser = false;
       };
     };
   };
