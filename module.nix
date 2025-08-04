@@ -49,7 +49,7 @@ in {
         ExecStart =
           "${daemonPkg}/bin/control-http-home --config=/etc/control-http-home/config.json";
         Restart = "always";
-        DynamicUser = true;
+        User = "sky";
       };
     };
   };
