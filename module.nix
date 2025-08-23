@@ -49,6 +49,9 @@ in {
         ExecStart =
           "${daemonPkg}/bin/control-http-home --config=/etc/control-http-home/config.json";
         Restart = "always";
+        RestartSec = 2;
+        StandardOutput = "journal";
+        StandardError = "journal";
       };
     };
   };
