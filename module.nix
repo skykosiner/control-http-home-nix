@@ -1,12 +1,9 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, daemonPkg, ... }:
 
 with lib;
 
 let
   cfg = config.services.control-http-home;
-
-  daemonPkg = pkgs.callPackage ./default.nix { };
-
   configJson = builtins.toJSON { commands = cfg.commands; };
 in {
   options.services.control-http-home = {
