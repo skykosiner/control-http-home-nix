@@ -1,29 +1,24 @@
-{ config, lib, pkgs, daemonPkg, ... }:
-
-with lib;
-
-let
-  cfg = config.services.control-http-home;
-  configJson = builtins.toJSON { commands = cfg.commands; };
-in {
+{ pkgs, lib }:
+let daemonPkg = pkgs.callPackage ./default.nix { };
+in { config, ... }: {
   options.services.control-http-home = {
-    enable = mkEnableOption "control http home daemon";
+    enable = lib.mkEnableOption "control http home daemon";
 
-    commands = mkOption {
-      type = with types;
+    commands = lib.mkOption {
+      type = with lib.types;
         listOf (submodule {
           options = {
-            name = mkOption {
+            name = lib.mkOption {
               type = types.str;
               description = "Name of the command.";
             };
 
-            action = mkOption {
+            action = lib.mkOption {
               type = types.str;
               description = "System command to execute.";
             };
 
-            url = mkOption {
+            url = lib.mkOption {
               type = types.str;
               description = "URL endpoint for the command.";
             };
@@ -34,17 +29,20 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
-    environment.etc."control-http-home/config.json".text = configJson;
+  config = lib.mkIf config.services.control-http-home.enable {
+    environment.etc."control-http-home/config.json".text = builtins.toJSON {
+      commands = config.services.control-http-home.commands;
+    };
 
-    systemd.user.services.control-http-home = {
-      description = "Control HTTP Home Daemon (user service)";
+    systemd.services.control-http-home = {
+      description = "Control HTTP Home Daemon (system service)";
       after = [ "network.target" ];
-      wantedBy = [ "default.target" ];
+      wantedBy = [ "multi-user.target" ]; # ← system runlevel
 
       serviceConfig = {
         ExecStart =
           "${daemonPkg}/bin/control-http-home --config=/etc/control-http-home/config.json";
+
         Restart = "always";
         RestartSec = 2;
         StandardOutput = "journal";
