@@ -13,14 +13,9 @@
 
         daemonPkg = pkgs.callPackage ./default.nix { };
 
+        module = import ./module.nix { inherit pkgs daemonPkg; };
       in {
-        # Export the package so it can be used directly if needed
         packages.control-http-home = daemonPkg;
-
-        # Export the NixOS module so it can be imported by another flake
-        nixosModules.control-http-home = import ./module.nix {
-          inherit pkgs;
-          inherit daemonPkg;
-        };
+        nixosModules.default = module;
       });
 }
